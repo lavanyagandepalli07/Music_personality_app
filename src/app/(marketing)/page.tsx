@@ -1,10 +1,18 @@
 import { Button } from "@/components/ui/button"
 import { Music2, Sparkles, Share2, Zap } from 'lucide-react'
 import Link from 'next/link'
-import { db } from "@/lib/db"
+
+export const dynamic = 'force-dynamic'
 
 export default async function LandingPage() {
-  const profileCount = await db.profile.count()
+  let profileCount = 0
+  
+  try {
+    const { db } = await import("@/lib/db")
+    profileCount = await db.profile.count()
+  } catch (error) {
+    console.error("Landing page DB error:", error)
+  }
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background px-6 text-foreground">

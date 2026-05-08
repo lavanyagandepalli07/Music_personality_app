@@ -1,15 +1,22 @@
 import { ImageResponse } from 'next/og'
-import { db } from '@/lib/db'
 
-export const runtime = 'edge'
+export const dynamic = 'force-dynamic'
 
 export async function GET(
   request: Request,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
+  if (process.env.NEXT_PHASE === 'phase-production-build') {
+    return new Response('Building...', { status: 200 })
+  }
+
   try {
+    const { slug } = await params
+    // Dynamically import DB
+    const { db } = await import('@/lib/db')
+    
     const profile = await db.profile.findUnique({
-      where: { shareSlug: params.slug },
+      where: { shareSlug: slug },
       include: { user: true }
     })
 
@@ -68,8 +75,7 @@ export async function GET(
         height: 630,
       }
     )
-  } catch (e: unknown) {
-    console.error("OG Generation Error:", e)
+  } catch (e: any) {
     return new Response(`Failed to generate the image`, {
       status: 500,
     })

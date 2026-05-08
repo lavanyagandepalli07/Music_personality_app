@@ -1,17 +1,29 @@
-import { db } from "@/lib/db"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { Sparkles, Music2 } from "lucide-react"
 import { ProfileData } from "@/components/profile-reveal"
 
+export const dynamic = 'force-dynamic'
+
 export default async function ExplorePage() {
-  const profiles = await db.profile.findMany({
-    where: { isPublic: true },
-    orderBy: { createdAt: 'desc' },
-    include: { user: true },
-    take: 20
-  })
+  let profiles: (any & { user: any })[] = []
+  
+  if (process.env.NEXT_PHASE === 'phase-production-build') {
+     return <div className="p-20 text-center">Building...</div>
+  }
+
+  try {
+    const { db } = await import("@/lib/db")
+    profiles = await db.profile.findMany({
+      where: { isPublic: true },
+      orderBy: { createdAt: 'desc' },
+      include: { user: true },
+      take: 20
+    })
+  } catch (error) {
+    console.error("Explore page DB error:", error)
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-20 pt-24 px-6">
