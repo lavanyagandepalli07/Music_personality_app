@@ -19,19 +19,28 @@ export async function generateProfileAction(timeRange: TimeRange = "medium_term"
   // 1. Get/Create Snapshot
   const snapshot = await getListeningSnapshot(userId, timeRange)
   
-  // 2. Compute Metrics
-  const metrics = computeMetrics(snapshot)
-
-  // 3. Generate AI Profile
-  const profileData = await generateMusicProfile(metrics, session.user.name || "Music Lover")
-
-  // 4. Find the snapshot ID to link the profile
+  // 2. Check for existing profile linked to this snapshot
   const dbSnapshot = await db.snapshot.findFirst({
     where: { userId, timeRange },
     orderBy: { createdAt: 'desc' }
   })
 
   if (!dbSnapshot) throw new Error("Snapshot not found")
+
+  const existingProfile = await db.profile.findFirst({
+    where: { snapshotId: dbSnapshot.id }
+  })
+
+  if (existingProfile) {
+    console.log("Profile already exists for this snapshot, redirecting...")
+    redirect(`/profile/${existingProfile.shareSlug}`)
+  }
+
+  // 3. Compute Metrics
+  const metrics = computeMetrics(snapshot)
+
+  // 4. Generate AI Profile
+  const profileData = await generateMusicProfile(metrics, session.user.name || "Music Lover")
 
   // 5. Store Profile in DB
   const profile = await db.profile.create({

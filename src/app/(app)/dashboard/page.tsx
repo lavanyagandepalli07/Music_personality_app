@@ -2,6 +2,8 @@ import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { signOut } from "@/auth"
+import { deleteUserDataAction } from "@/app/actions/user"
+import { Trash2 } from "lucide-react"
 
 import { GenerateButton } from "@/components/generate-button"
 
@@ -36,14 +38,25 @@ export default async function DashboardPage() {
         <div className="mt-12 flex flex-col gap-4">
           <GenerateButton />
           
-          <form action={async () => {
-            "use server"
-            await signOut({ redirectTo: "/" })
-          }}>
-            <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
-              Disconnect Spotify
-            </Button>
-          </form>
+          <div className="flex gap-4 justify-center">
+            <form action={async () => {
+              "use server"
+              await signOut({ redirectTo: "/" })
+            }}>
+              <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
+                Sign Out
+              </Button>
+            </form>
+
+            <form action={deleteUserDataAction} onSubmit={(e) => {
+               if(!confirm("Are you sure? This will permanently delete your profiles.")) e.preventDefault();
+            }}>
+              <Button variant="ghost" className="text-muted-foreground hover:text-destructive transition-colors flex items-center gap-2">
+                <Trash2 className="w-4 h-4" />
+                Delete My Data
+              </Button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
