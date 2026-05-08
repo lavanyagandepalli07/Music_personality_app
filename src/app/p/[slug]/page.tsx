@@ -30,13 +30,21 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   }
 }
 
+import { auth } from "@/auth"
+
 export default async function PublicProfilePage({ params }: { params: { slug: string } }) {
   const { slug } = params
+  const session = await auth()
 
-  const profile = await db.profile.findUnique({
-    where: { shareSlug: slug },
-    include: { user: true }
-  })
+  const [profile, currentUserProfile] = await Promise.all([
+    db.profile.findUnique({
+      where: { shareSlug: slug },
+      include: { user: true }
+    }),
+    session?.user?.id 
+      ? db.profile.findFirst({ where: { userId: session.user.id }, orderBy: { createdAt: 'desc' } })
+      : null
+  ])
 
   if (!profile || !profile.isPublic) {
     notFound()
@@ -49,7 +57,9 @@ export default async function PublicProfilePage({ params }: { params: { slug: st
       data={data} 
       userName={profile.user.name || "Music Lover"} 
       userImage={profile.user.image}
-      isOwner={false}
+      isOwner={session?.user?.id === profile.userId}
+      shareSlug={profile.shareSlug}
+      currentUserProfileSlug={currentUserProfile?.shareSlug}
     />
   )
 }

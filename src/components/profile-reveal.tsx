@@ -26,9 +26,11 @@ interface ProfileRevealProps {
   userName: string
   userImage?: string | null
   isOwner?: boolean
+  currentUserProfileSlug?: string | null
+  shareSlug: string
 }
 
-export function ProfileReveal({ data, userName, userImage, isOwner }: ProfileRevealProps) {
+export function ProfileReveal({ data, userName, userImage, isOwner, currentUserProfileSlug, shareSlug }: ProfileRevealProps) {
   return (
     <div className="min-h-screen bg-background text-foreground pb-20">
       {/* Dynamic Background Aura */}
@@ -115,10 +117,20 @@ export function ProfileReveal({ data, userName, userImage, isOwner }: ProfileRev
 
         {/* Action Bar */}
         <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
-          <Button size="lg" className="w-full sm:w-auto h-14 px-10 gap-2 font-bold shadow-lg shadow-primary/20">
+          {currentUserProfileSlug && !isOwner && (
+            <Link href={`/compare/${currentUserProfileSlug}/${shareSlug}`}>
+              <Button size="lg" className="w-full sm:w-auto h-14 px-10 gap-2 font-bold shadow-lg shadow-primary/20 bg-primary">
+                <Zap className="w-5 h-5 fill-current" />
+                Vibe Check With Me
+              </Button>
+            </Link>
+          )}
+          
+          <Button size="lg" variant={currentUserProfileSlug && !isOwner ? "outline" : "default"} className="w-full sm:w-auto h-14 px-10 gap-2 font-bold shadow-lg">
             <Share2 className="w-5 h-5" />
             Share Profile
           </Button>
+          
           {!isOwner ? (
              <Link href="/">
               <Button variant="outline" size="lg" className="w-full sm:w-auto h-14 px-10">

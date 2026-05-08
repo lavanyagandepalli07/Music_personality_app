@@ -58,3 +58,39 @@ export async function generateMusicProfile(metrics: ComputedMetrics, userName: s
     throw new Error("Failed to generate personality profile");
   }
 }
+
+/**
+ * Analyzes the compatibility between two users based on their music metrics.
+ */
+export async function analyzeCompatibility(
+  metricsA: ComputedMetrics,
+  metricsB: ComputedMetrics,
+  nameA: string,
+  nameB: string
+) {
+  const prompt = `
+    Analyze the musical compatibility between ${nameA} and ${nameB}.
+    
+    ${nameA}'s Metrics: ${JSON.stringify(metricsA)}
+    ${nameB}'s Metrics: ${JSON.stringify(metricsB)}
+    
+    Write a 3-sentence "Vibe Check" analysis. 
+    Be funny, slightly judgmental, and mention specific genres or popularity gaps.
+    
+    Return ONLY a JSON object:
+    {
+      "vibeCheck": "The 3-sentence analysis",
+      "verdict": "A one-word verdict (e.g., 'Soulmates', 'Chaos', 'Tolerable')",
+      "sharedObsession": "A genre or artist they both might actually like together"
+    }
+  `;
+
+  try {
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    return JSON.parse(response.text());
+  } catch (error) {
+    console.error("Gemini Compatibility Error:", error);
+    return { vibeCheck: "Your tastes are too complex for our AI to comprehend right now.", verdict: "Enigmatic", sharedObsession: "Silence" };
+  }
+}

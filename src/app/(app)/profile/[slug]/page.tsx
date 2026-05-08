@@ -25,6 +25,8 @@ export default async function ProfilePage({ params }: { params: { slug: string }
       userName={profile.user.name || "Music Lover"} 
       userImage={profile.user.image}
       isOwner={isOwner}
+      shareSlug={profile.shareSlug}
+      currentUserProfileSlug={isOwner ? profile.shareSlug : null}
     />
   )
 }
