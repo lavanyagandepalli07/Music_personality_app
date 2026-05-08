@@ -3,6 +3,8 @@ import { redirect } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { signOut } from "@/auth"
 
+import { GenerateButton } from "@/components/generate-button"
+
 export default async function DashboardPage() {
   const session = await auth()
   
@@ -15,25 +17,32 @@ export default async function DashboardPage() {
       {/* Background Decorative Elements */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <div className="absolute -bottom-[10%] -right-[10%] h-[40%] w-[40%] rounded-full bg-primary/10 blur-[120px]" />
+        <div className="absolute -top-[10%] -left-[10%] h-[30%] w-[30%] rounded-full bg-primary/5 blur-[120px]" />
       </div>
 
       <div className="z-10 flex flex-col items-center text-center">
-        <div className="mb-6 h-20 w-20 rounded-full bg-primary/20 ring-1 ring-primary/40 flex items-center justify-center overflow-hidden">
+        <div className="mb-6 h-24 w-24 rounded-full bg-primary/20 ring-1 ring-primary/40 flex items-center justify-center overflow-hidden">
           {session.user?.image ? (
             <img src={session.user.image} alt={session.user.name ?? ""} className="h-full w-full object-cover" />
           ) : (
-            <span className="text-2xl font-bold text-primary">{session.user?.name?.charAt(0)}</span>
+            <span className="text-3xl font-bold text-primary">{session.user?.name?.charAt(0)}</span>
           )}
         </div>
-        <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">Welcome, {session.user?.name}</h1>
-        <p className="mt-4 text-muted-foreground">Connected as {session.user?.email}</p>
+        <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">Hey, {session.user?.name?.split(' ')[0]}</h1>
+        <p className="mt-4 max-w-sm text-muted-foreground sm:text-lg">
+          Your Spotify is connected. Ready to see the archetype behind your listening habits?
+        </p>
         
-        <div className="mt-10 flex gap-4">
+        <div className="mt-12 flex flex-col gap-4">
+          <GenerateButton />
+          
           <form action={async () => {
             "use server"
             await signOut({ redirectTo: "/" })
           }}>
-            <Button variant="outline">Sign Out</Button>
+            <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
+              Disconnect Spotify
+            </Button>
           </form>
         </div>
       </div>
