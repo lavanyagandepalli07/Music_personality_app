@@ -8,7 +8,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     ? undefined 
     : (async () => {
         const { db } = await import("@/lib/db")
-        return PrismaAdapter(db)
+        return PrismaAdapter(db as any)
       })() as any,
   providers: [
     Spotify({

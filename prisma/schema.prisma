@@ -2,13 +2,12 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../src/generated/prisma/client"
 }
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
 }
 
 model Account {
@@ -47,7 +46,6 @@ model User {
   accounts      Account[]
   sessions      Session[]
   
-  // Future proofing for Phase 2/4
   snapshots     Snapshot[]
   profiles      Profile[]
 }
@@ -60,7 +58,6 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-// Phase 2 - Listening Snapshot
 model Snapshot {
   id            String   @id @default(cuid())
   userId        String
@@ -74,7 +71,6 @@ model Snapshot {
   @@index([userId, snapshotHash])
 }
 
-// Phase 4 - AI Profile
 model Profile {
   id            String   @id @default(cuid())
   userId        String

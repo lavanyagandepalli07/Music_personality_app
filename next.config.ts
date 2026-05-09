@@ -17,10 +17,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // Suppress the build warning about <img> tags since we use them for dynamic profile pics in some components
-  eslint: {
-    ignoreDuringBuilds: true,
-  }
 };
 
 export default nextConfig;

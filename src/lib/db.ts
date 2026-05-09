@@ -1,4 +1,6 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '../generated/prisma/client/client'
+import { PrismaPg } from '@prisma/adapter-pg'
+import { Pool } from 'pg'
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
@@ -6,13 +8,14 @@ const globalForPrisma = globalThis as unknown as {
 
 const createPrismaClient = () => {
   if (!process.env.DATABASE_URL) {
-    // Return a proxy that throws only when called, or a dummy client
-    // During build, we just need the object to exist
-    return new PrismaClient()
+    // During build, if DATABASE_URL is missing, we still need a client
+    return new PrismaClient({} as any)
   }
-  return new PrismaClient({
-    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
-  })
+
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+  const adapter = new PrismaPg(pool)
+  
+  return new PrismaClient({ adapter })
 }
 
 export const db = globalForPrisma.prisma ?? createPrismaClient()
