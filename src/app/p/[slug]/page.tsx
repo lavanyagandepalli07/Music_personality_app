@@ -50,12 +50,12 @@ export default async function PublicProfilePage({
 }: { 
   params: Promise<{ slug: string }> 
 }) {
-  const { slug } = await params
-  const session = await auth()
-
   if (process.env.NEXT_PHASE === 'phase-production-build') {
     return <div className="p-20 text-center text-white">Building...</div>
   }
+
+  const { slug } = await params
+  const session = await auth()
 
   try {
     const { db } = await import("@/lib/db")

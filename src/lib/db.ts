@@ -1,23 +1,21 @@
 import { PrismaClient } from '@prisma/client'
-import { PrismaPg } from '@prisma/adapter-pg'
-import { Pool } from 'pg'
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined
+declare global {
+  // eslint-disable-next-line no-var
+  var prisma: PrismaClient | undefined
 }
 
-const createPrismaClient = () => {
-  if (!process.env.DATABASE_URL) {
-    // During build, if DATABASE_URL is missing, we still need a client
-    return new PrismaClient({} as any)
+function getPrismaClient(): PrismaClient {
+  if (!global.prisma) {
+    global.prisma = new PrismaClient()
   }
-
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL })
-  const adapter = new PrismaPg(pool)
-  
-  return new PrismaClient({ adapter })
+  return global.prisma
 }
 
-export const db = globalForPrisma.prisma ?? createPrismaClient()
-
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db
+// Lazy proxy — the actual PrismaClient is only instantiated when
+// a property is first accessed (i.e. at request time, not module load time).
+export const db = new Proxy({} as PrismaClient, {
+  get(_target, prop) {
+    return (getPrismaClient() as any)[prop]
+  },
+})
