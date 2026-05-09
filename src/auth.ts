@@ -5,6 +5,7 @@ import { db } from "@/lib/db"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
+  basePath: "/api/auth",
   adapter: PrismaAdapter(db as any),
   providers: [
     Spotify({
