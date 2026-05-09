@@ -1,15 +1,10 @@
 import NextAuth from "next-auth"
 import Spotify from "next-auth/providers/spotify"
 import { PrismaAdapter } from "@auth/prisma-adapter"
+import { db } from "@/lib/db"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  // Only initialize adapter if we aren't in the build phase
-  adapter: process.env.NEXT_PHASE === 'phase-production-build' 
-    ? undefined 
-    : (async () => {
-        const { db } = await import("@/lib/db")
-        return PrismaAdapter(db as any)
-      })() as any,
+  adapter: PrismaAdapter(db as any),
   providers: [
     Spotify({
       clientId: process.env.SPOTIFY_CLIENT_ID,
